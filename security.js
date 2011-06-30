@@ -53,3 +53,8 @@ var secureRoutes = module.exports.secureRoutes = function(app) {
 
     return app;
 };
+
+module.exports.allowAll = function(req, res, next) {
+    req.permitRequest = true;
+    return next();
+};
