@@ -1,9 +1,19 @@
 {
-    "name": "security"
-  , "version": "0.0.1"
-  , "private": true
-  , "dependencies": {
-      "express": "2.3.11"
+  "name": "security",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "express": "2.3.11"
+  },
+  "main": "security",
+  "devDependencies": {},
+  "engines": {
+    "node": "*"
+  },
+  "author": "Adam Berger <adam.g.berger@gmail.com>",
+  "description": "Enforces web security before allowing routes to be handled",
+  "repository": {
+    "type": "git",
+    "url": "ssh://192.168.1.9/home/adam/security"
   }
-  , "main": "security"
 }

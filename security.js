@@ -1,4 +1,5 @@
 var express = require('express');
+var crypto = require('crypto');
 
 /**
 * Middleware that only allows the request to proceed if request.permitRequest is set
@@ -58,3 +59,49 @@ module.exports.allowAll = function(req, res, next) {
     req.permitRequest = true;
     return next();
 };
+
+var generateCsrfToken = function(sessionId, url) {
+    if ( !sessionId ) {
+        throw new Error('No session id provided');
+    }
+
+    if ( !url ) {
+        throw new Error('No url provided');
+    }
+
+    var hmac = crypto.createHmac('sha1', module.exports.csrfProtector.SECRET + sessionId);
+    hmac.update(url);
+    return hmac.digest('base64');
+};
+
+module.exports.csrfProtector = function(app) {
+    app.dynamicHelpers({csrf: function(req, res) { return generateCsrfToken.bind(null, req.sessionID); }});
+
+    return function(req, res, next) {
+        try {
+            if ( module.exports.csrfProtector.ignoreMethods.indexOf(req.method) > -1 ) { 
+                // skip this type of method
+                return next(); 
+            }
+
+            // get the csrf token
+            var csrfToken = req.body._csrf;
+            if ( !csrfToken ) {
+                return next(new Error('No csrf token received for request'));
+            }
+
+            var expectedCsrfToken = generateCsrfToken(req.sessionID, req.url);
+
+            if ( csrfToken != expectedCsrfToken ) {
+                return next(new Error('Incorrect CSRF token'));
+            }
+
+            return next();
+        } catch ( e ) {
+            next(e);
+        };
+    };
+};
+
+module.exports.csrfProtector.ignoreMethods = ['GET'];
+module.exports.csrfProtector.SECRET = 'secret';
