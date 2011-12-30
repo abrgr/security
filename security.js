@@ -87,13 +87,13 @@ module.exports.csrfProtector = function(app) {
             // get the csrf token
             var csrfToken = req.body._csrf;
             if ( !csrfToken ) {
-                return next(new Error('No csrf token received for request for url: [' + req.url + ']'));
+                return next(new Error('No csrf token received for request for url: [' + req.url + '], sessionID: [' + req.sessionID + ']'));
             }
 
             var expectedCsrfToken = generateCsrfToken(req.sessionID, req.url);
 
             if ( csrfToken != expectedCsrfToken ) {
-                return next(new Error('Incorrect CSRF token for url: [' + req.url + ']'));
+                return next(new Error('Incorrect CSRF token for url: [' + req.url + '], sessionID: [' + req.sessionID + ']'));
             }
 
             return next();
