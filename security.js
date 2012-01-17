@@ -60,7 +60,36 @@ module.exports.allowAll = function(req, res, next) {
     return next();
 };
 
-var generateCsrfToken = function(sessionId, url) {
+var generateId = function() {
+    var all = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890+/',
+        allCount = all.length,
+        len = 20,
+        i = 0,
+        ret = '';
+    
+    for ( i = 0; i<len; ++i ) {
+        ret += all[Math.floor(Math.random() * allCount)];
+    }
+
+    return ret;
+};
+
+var getSessionId = function(req) {
+    if ( !!req.sessionID  ) {
+        return req.sessionID;
+    }
+
+    if ( !!req.session.sid ) {
+        return req.session.sid;
+    }
+
+    return req.session.sid = generateId();
+};
+
+var generateCsrfToken = function(req, url) {
+    console.log(req.session, req.sessionID);
+    var sessionId = getSessionId(req);
+        
     if ( !sessionId ) {
         throw new Error('No session id provided');
     }
@@ -74,26 +103,50 @@ var generateCsrfToken = function(sessionId, url) {
     return hmac.digest('base64');
 };
 
+function ensureSession(req) {
+    if ( !req.session ) {
+        console.log('fake session');
+        req.session = {};
+    }
+
+    if ( !req.session.regenerate ) {
+        req.session.regenerate = function(fn) {
+            req.session.id = generateId();
+            fn();
+        };
+    }
+
+    if ( !req.session.destroy ) {
+        req.session.destroy = function(fn) {
+            req.session = {};
+            fn();
+        };
+    }
+}
+
 module.exports.csrfProtector = function(app) {
-    app.dynamicHelpers({csrf: function(req, res) { return generateCsrfToken.bind(null, req.sessionID); }});
+    app.dynamicHelpers({csrf: function(req, res) { ensureSession(req); return generateCsrfToken.bind(null, req); }});
 
     return function(req, res, next) {
         try {
+            ensureSession(req);
+
             if ( module.exports.csrfProtector.ignoreMethods.indexOf(req.method) > -1 ) { 
                 // skip this type of method
                 return next(); 
             }
 
             // get the csrf token
-            var csrfToken = req.body._csrf;
+            var csrfToken = req.body._csrf,
+                sessionId = getSessionId(req);
             if ( !csrfToken ) {
-                return next(new Error('No csrf token received for request for url: [' + req.url + '], sessionID: [' + req.sessionID + ']'));
+                return next(new Error('No csrf token received for request for url: [' + req.url + '], sessionID: [' + sessionId + ']'));
             }
 
-            var expectedCsrfToken = generateCsrfToken(req.sessionID, req.url);
+            var expectedCsrfToken = generateCsrfToken(req, req.url);
 
             if ( csrfToken != expectedCsrfToken ) {
-                return next(new Error('Incorrect CSRF token for url: [' + req.url + '], sessionID: [' + req.sessionID + ']'));
+                return next(new Error('Incorrect CSRF token for url: [' + req.url + '], sessionID: [' + sessionId + ']'));
             }
 
             return next();
