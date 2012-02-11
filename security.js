@@ -63,7 +63,7 @@ module.exports.allowAll = function(req, res, next) {
 var generateId = function() {
     var all = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890+/',
         allCount = all.length,
-        len = 20,
+        len = 44,
         i = 0,
         ret = '';
     
@@ -87,7 +87,6 @@ var getSessionId = function(req) {
 };
 
 var generateCsrfToken = function(req, url) {
-    console.log(req.session, req.sessionID);
     var sessionId = getSessionId(req);
         
     if ( !sessionId ) {
