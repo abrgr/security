@@ -130,7 +130,8 @@ module.exports.csrfProtector = function(app) {
         try {
             ensureSession(req);
 
-            if ( module.exports.csrfProtector.ignoreMethods.indexOf(req.method) > -1 ) { 
+            if ( module.exports.csrfProtector.ignoreMethods.indexOf(req.method) > -1 
+                || module.exports.csrfProtector.ignoreUrls.indexOf(req.url) > -1 ) { 
                 // skip this type of method
                 return next(); 
             }
