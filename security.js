@@ -1,5 +1,6 @@
-var express = require('express');
-var crypto = require('crypto');
+var express = require('express'),
+    crypto = require('crypto'),
+    log = require('log4js').getLogger('security');
 
 /**
 * Middleware that only allows the request to proceed if request.permitRequest is set
@@ -104,7 +105,7 @@ var generateCsrfToken = function(req, url) {
 
 function ensureSession(req) {
     if ( !req.session ) {
-        console.log('fake session');
+        log.trace('fake session');
         req.session = {};
     }
 
@@ -133,6 +134,7 @@ module.exports.csrfProtector = function(app) {
             if ( module.exports.csrfProtector.ignoreMethods.indexOf(req.method) > -1 
                 || module.exports.csrfProtector.ignoreUrls.indexOf(req.url) > -1 ) { 
                 // skip this type of method
+                log.info('Skipping csrf checks for', req.url);
                 return next(); 
             }
 
