@@ -134,7 +134,7 @@ module.exports.csrfProtector = function(app) {
             if ( module.exports.csrfProtector.ignoreMethods.indexOf(req.method) > -1 
                 || module.exports.csrfProtector.ignoreUrls.indexOf(req.url) > -1 ) { 
                 // skip this type of method
-                log.info('Skipping csrf checks for', req.url);
+                log.info('Skipping csrf checks for', req.method, req.url);
                 return next(); 
             }
 
