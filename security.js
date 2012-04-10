@@ -5,29 +5,31 @@ var express = require('express'),
 /**
 * Middleware that only allows the request to proceed if request.permitRequest is set
 **/
-var secureMiddleware = function(req, res, next) {
-    if ( !!req.permitRequest ) {
-        return next();
-    }
+function getSecureMiddleware(unauthorizedError) {
+    return function(req, res, next) {
+        if ( !!req.permitRequest ) {
+            return next();
+        }
 
-    return next(new Error('Attempted invocation of [' + req.url + '] when request.permitRequest was not set.'));
-};
+        return next(new unauthorizedError('Attempted invocation of [' + req.url + '] when request.permitRequest was not set.'));
+    };
+}
 
 /**
 * Proxies all routes on app (existing and future) to ensure that request.permitRequest is set.  If it is not set,
 * an error will be passed to the next function passed to the route
 * @param {Object} app - HTTPServer or HTTPSServer on which to secure the routes
 **/
-var secureRoutes = module.exports.secureRoutes = function(app) {
+var secureRoutes = module.exports.secureRoutes = function(app, unauthorizedError) {
     // proxy any routes already setup
-    var currentRoutesByMethod = app.routes.routes;
+    var secureMiddleware = getSecureMiddleware(unauthorizedError || Error),
+        currentRoutesByMethod = app.routes.routes,
+        methods = express.router.methods;
     Object.keys(currentRoutesByMethod).forEach(function(method) {
         currentRoutesByMethod[method].forEach(function(route) {
             route.middleware.push(secureMiddleware);
         });
     });
-
-    var methods = express.router.methods;
 
     // proxy all future routes
     methods.forEach(function(method) {
