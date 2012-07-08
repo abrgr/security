@@ -149,7 +149,7 @@ module.exports.csrfProtector = function(app, unauthorizedError) {
             }
 
             // get the csrf token
-            var csrfToken = req.body._csrf,
+            var csrfToken = req.headers['x-csrf'] || req.body._csrf,
                 sessionId = getSessionId(req);
             if ( !csrfToken ) {
                 return next(new unauthorizedError('No csrf token received for request for url: [' + req.url + '], sessionID: [' + sessionId + ']'));
