@@ -126,7 +126,11 @@ function ensureSession(req) {
     }
 }
 
-module.exports.csrfProtector = function(app) {
+module.exports.csrfProtector = function(app, unauthorizedError) {
+    if ( !unauthorizedError ) {
+        unauthorizedError = Error;
+    }
+
     app.dynamicHelpers({csrf: function(req, res) { ensureSession(req); return generateCsrfToken.bind(null, req); }});
 
     return function(req, res, next) {
@@ -148,13 +152,13 @@ module.exports.csrfProtector = function(app) {
             var csrfToken = req.body._csrf,
                 sessionId = getSessionId(req);
             if ( !csrfToken ) {
-                return next(new Error('No csrf token received for request for url: [' + req.url + '], sessionID: [' + sessionId + ']'));
+                return next(new unauthorizedError('No csrf token received for request for url: [' + req.url + '], sessionID: [' + sessionId + ']'));
             }
 
             var expectedCsrfToken = generateCsrfToken(req, req.url);
 
             if ( csrfToken != expectedCsrfToken ) {
-                return next(new Error('Incorrect CSRF token for url: [' + req.url + '], sessionID: [' + sessionId + ']'));
+                return next(new unauthorizedError('Incorrect CSRF token for url: [' + req.url + '], sessionID: [' + sessionId + ']'));
             }
 
             return next();
