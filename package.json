@@ -12,5 +12,5 @@
     "node": "*"
   },
   "author": "Adam Berger <adam.g.berger@gmail.com>",
-  "description": "Enforces web security before allowing routes to be handled",
+  "description": "Enforces web security before allowing routes to be handled"
 }
