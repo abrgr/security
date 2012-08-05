@@ -1,9 +1,10 @@
 {
   "name": "security",
-  "version": "0.0.1",
+  "version": "0.4.0",
   "private": true,
   "dependencies": {
-    "express": "2.5.0"
+      "express": "2.5.0"
+    , "log4js": "0.4.1"
   },
   "main": "security",
   "devDependencies": {},
@@ -12,8 +13,4 @@
   },
   "author": "Adam Berger <adam.g.berger@gmail.com>",
   "description": "Enforces web security before allowing routes to be handled",
-  "repository": {
-    "type": "git",
-    "url": "ssh://192.168.1.9/home/adam/security"
-  }
 }
