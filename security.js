@@ -104,6 +104,7 @@ var generateCsrfToken = function(req, url) {
     hmac.update(url);
     return hmac.digest('base64');
 };
+module.exports.generateCsrfToken = generateCsrfToken;
 
 function ensureSession(req) {
     if ( !req.session ) {
