@@ -143,7 +143,8 @@ module.exports.csrfProtector = function(app, unauthorizedError) {
                 return next();
             }
 
-            if ( module.exports.csrfProtector.ignoreUrls.indexOf(req.url) > -1 ) { 
+            if ( module.exports.csrfProtector.ignoreUrls.indexOf(req.url) > -1 ||
+                module.exports.csrfProtector.ignorePatterns.reduce(function(anyMatch, p) { return p.exec(req.url); }, false) ) {
                 // skip this url
                 log.info('Skipping csrf checks for', req.method, req.url);
                 return next(); 
@@ -169,5 +170,7 @@ module.exports.csrfProtector = function(app, unauthorizedError) {
     };
 };
 
+module.exports.csrfProtector.ignoreUrls = [];
+module.exports.csrfProtector.ignorePatterns = [];
 module.exports.csrfProtector.ignoreMethods = ['GET'];
 module.exports.csrfProtector.SECRET = 'secret';
