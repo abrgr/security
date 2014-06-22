@@ -1,6 +1,7 @@
-var express = require('express'),
-    crypto = require('crypto'),
-    log = require('log4js').getLogger('security');
+var crypto = require('crypto');
+
+// overwrite log to change logging
+module.exports.log = console.log;
 
 /**
 * Middleware that only allows the request to proceed if request.permitRequest is set
@@ -24,7 +25,11 @@ var secureRoutes = module.exports.secureRoutes = function(app, unauthorizedError
     // proxy any routes already setup
     var secureMiddleware = getSecureMiddleware(unauthorizedError || Error),
         currentRoutesByMethod = app.routes.routes,
-        methods = express.router.methods;
+        // there doesn't seem to be any way to get a list of methods that express supports without requiring it, but I don't want
+        // to lock in to a specific version, so I copied this list of methods from express
+        methods = ['OPTIONS', 'GET', 'POST', 'PUT', 'DELETE', 'TRACE', 'CONNECT', 'PROPFIND', 'PROPPATCH', 'MKCOL', 'COPY',
+                   'MOVE', 'LOCK', 'UNLOCK', 'VERSION-CONTROL', 'REPORT', 'CHECKOUT', 'CHECKIN', 'UNCHECKOUT', 'MKWORKSPACE',
+                   'UPDATE', 'LABEL', 'MERGE', 'BASELINE-CONTROL', 'MKACTIVITY', 'ORDERPATCH', 'ACL', 'SEARCH', 'PATCH'];
     Object.keys(currentRoutesByMethod).forEach(function(method) {
         currentRoutesByMethod[method].forEach(function(route) {
             route.middleware.push(secureMiddleware);
@@ -108,7 +113,7 @@ module.exports.generateCsrfToken = generateCsrfToken;
 
 function ensureSession(req) {
     if ( !req.session ) {
-        log.trace('fake session');
+        module.exports.log.trace('fake session');
         req.session = {};
     }
 
@@ -146,7 +151,7 @@ module.exports.csrfProtector = function(app, unauthorizedError) {
             if ( module.exports.csrfProtector.ignoreUrls.indexOf(req.url) > -1 ||
                 module.exports.csrfProtector.ignorePatterns.reduce(function(anyMatch, p) { return p.exec(req.url); }, false) ) {
                 // skip this url
-                log.info('Skipping csrf checks for', req.method, req.url);
+                module.exports.log.info('Skipping csrf checks for', req.method, req.url);
                 return next(); 
             }
 

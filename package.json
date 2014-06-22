@@ -3,8 +3,6 @@
   "version": "0.4.1",
   "private": true,
   "dependencies": {
-      "express": "2.5.0"
-    , "log4js": "0.4.1"
   },
   "main": "security",
   "devDependencies": {},
