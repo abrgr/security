@@ -27,9 +27,9 @@ var secureRoutes = module.exports.secureRoutes = function(app, unauthorizedError
         currentRoutesByMethod = app.routes.routes,
         // there doesn't seem to be any way to get a list of methods that express supports without requiring it, but I don't want
         // to lock in to a specific version, so I copied this list of methods from express
-        methods = ['OPTIONS', 'GET', 'POST', 'PUT', 'DELETE', 'TRACE', 'CONNECT', 'PROPFIND', 'PROPPATCH', 'MKCOL', 'COPY',
-                   'MOVE', 'LOCK', 'UNLOCK', 'VERSION-CONTROL', 'REPORT', 'CHECKOUT', 'CHECKIN', 'UNCHECKOUT', 'MKWORKSPACE',
-                   'UPDATE', 'LABEL', 'MERGE', 'BASELINE-CONTROL', 'MKACTIVITY', 'ORDERPATCH', 'ACL', 'SEARCH', 'PATCH'];
+        methods = ['options', 'get', 'post', 'put', 'delete', 'trace', 'connect', 'propfind', 'proppatch', 'mkcol', 'copy',
+                   'move', 'lock', 'unlock', 'version-control', 'report', 'checkout', 'checkin', 'uncheckout', 'mkworkspace',
+                   'update', 'label', 'merge', 'baseline-control', 'mkactivity', 'orderpatch', 'acl', 'search', 'patch'];
     Object.keys(currentRoutesByMethod).forEach(function(method) {
         currentRoutesByMethod[method].forEach(function(route) {
             route.middleware.push(secureMiddleware);
